@@ -1,39 +1,31 @@
-# Add this file to your dataspace-connector fork at:
-#   .github/workflows/docker-publish.yml
-#
-# Also add Dockerfile.connector (from this module folder) to the root of your fork.
-
 name: Build and Push Connector Image
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:            # allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write           # needed to push to ghcr.io
+      packages: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.connector
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/dataspace-connector:latest
-            ghcr.io/${{ github.repository_owner }}/dataspace-connector:${{ github.sha }}
+            ghcr.io/prithvish1996/dataspace-connector:latest
+            ghcr.io/prithvish1996/dataspace-connector:${{ github.sha }}
