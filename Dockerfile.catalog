@@ -1,0 +1,17 @@
+FROM node:lts
+
+WORKDIR /usr/src/app
+
+COPY package.json ./
+
+# npm avoids pnpm v11 build-approval blocking native deps (bcrypt etc.)
+RUN npm install --legacy-peer-deps
+
+COPY . .
+
+RUN chown -R node:node /usr/src/app
+
+# Pre-compile TypeScript at image build time — startup is instant
+RUN npm run build
+
+CMD ["node", "dist/src/index.js"]
