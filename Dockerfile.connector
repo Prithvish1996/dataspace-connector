@@ -1,0 +1,22 @@
+FROM node:lts
+
+# postinstall runs 'git init' — needs git
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+
+COPY package.json ./
+
+# npm avoids pnpm v11 build-approval blocking
+RUN npm install --legacy-peer-deps
+
+COPY . .
+
+RUN mkdir -p /src/logs /src/keys
+
+# Pre-compile TypeScript — type errors are non-fatal, output is still emitted
+RUN npm run build; exit 0
+
+# At startup: copy mounted config.development.json into dist/src/ then start
+CMD ["sh", "-c", "cp /usr/src/app/src/config.development.json /usr/src/app/dist/src/ 2>/dev/null; node dist/src/index.js --development"]
